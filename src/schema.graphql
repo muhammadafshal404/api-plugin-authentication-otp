@@ -1,0 +1,7 @@
+extend type User {
+    phone:String
+    numberVerified:Boolean
+}
+extend input CreateUserInput {
+    phone:String!
+}
