@@ -32,7 +32,7 @@ export default async (app) => {
         // You can apply some custom validation
         console.log("user", user)
         let userObj = {};
-        userObj = { ...user, phone: { phone: user.phone, verified: false } }
+        userObj = { ...user,  phone: user.phone, phoneVerified: false  }
 
         // We specify all the fields that can be inserted in the database
         return userObj;

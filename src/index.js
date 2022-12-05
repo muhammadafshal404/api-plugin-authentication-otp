@@ -13,7 +13,8 @@ const mySchema = importAsString("./schema.graphql");
  */
  const resolvers = {
   Account,
-  Mutation};
+  Mutation
+};
 
 function myStartup(context){
   const { app, collections, rootUrl } = context;

@@ -1,9 +1,5 @@
-// import  Twilio from 'twilio';
 
-// twilio = Twilio(
-//   "ACce78b155f83fd47af5d1571274676a43",
-//   "cde85cabd918df5ea9ee384f1590597b"
-// );
+import  request from 'request';
 
 var dict = {};
 
@@ -31,28 +27,18 @@ export async function generateOtp(number) {
 function sendOtp(number, body) {
   return new Promise((resolve, reject) => {
     console.log("sms", body)
-    resolve(true)
-    // twilio.sendSms(
-    //   {
-    //     to: msisdn, // msisdn Any number Twilio can deliver to
-    //     from: "+447897022293", // A number you bought from Twilio and can use for outbound communication
-    //     body: body, // body of the SMS message
-    //   },
-    //   function (err, responseData) {
-    //     //this function is executed when a response is received from Twilio
-    //     if (!err) {
-    //       resolve(responseData);
-    //       // "err" is an error received during the request, if any
-    //       // "responseData" is a JavaScript object containing data received from Twilio.
-    //       // A sample response from sending an SMS message is here (click "JSON" to see how the data appears in JavaScript):
-    //       // http://www.twilio.com/docs/api/rest/sending-sms#example-1
-    //     }
-    //     if (err) {
-    //       console.log("twillio error", err);
-    //       reject(err);
-    //     }
-    //   }
-    // );
+var options = {
+  'method': 'GET',
+  'url': 'https://sms.convexinteractive.com/api/sendsms.php?apisecret=3sOQu0TfEzBlSr1HWmvNViaDg619&apikey=Y9ixUzy5OkPc2fWQ4TMrhgV8R573&from=8833&to='+number+'&message='+body+'&response_type=json',
+  'headers': {
+  }
+};
+request(options, function (error, response) {
+  if (error) {
+    resolve(false)}
+  resolve(true)
+});
+
   });
 }
 export async function verifyOTP(number, otp, context) {
@@ -74,7 +60,7 @@ export async function verifyOTP(number, otp, context) {
     const { collections } = context;
     const { users } = collections;
 
-    const userObj=await users.updateOne({ "phone.phone": number }, {$set: {"phone.verified": "true"}})
+    const userObj=await users.updateOne({ "phone": number }, {$set: {"phoneVerified": "true"}})
 
     return {
       status: true,
