@@ -1,6 +1,8 @@
 import pkg from "../package.json";
 import tokenMiddleware from "./util/tokenMiddleware.js";
 import getAccounts from "./util/accountServer.js";
+import Account from "./resolvers/Account.js";
+import Mutation from "./resolvers/Mutations.js";
 import importAsString from "@reactioncommerce/api-utils/importAsString.js";
 const mySchema = importAsString("./schema.graphql");
 
@@ -9,6 +11,9 @@ const mySchema = importAsString("./schema.graphql");
  * @param {ReactionAPI} app The ReactionAPI instance
  * @returns {undefined}
  */
+ const resolvers = {
+  Account,
+  Mutation};
 
 function myStartup(context){
   const { app, collections, rootUrl } = context;
@@ -37,7 +42,7 @@ export default async function register(app) {
     graphQL: {
       schemas: [mySchema],
       typeDefsObj: [accountsGraphQL.typeDefs],
-      resolvers: accountsGraphQL.resolvers
+      resolvers: {...accountsGraphQL.resolvers,...resolvers}
     },
     expressMiddleware: [
       {

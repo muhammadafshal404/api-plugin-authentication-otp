@@ -38,7 +38,8 @@
     "jwt-decode": "^3.1.2",
     "mongoose": "^6.0.4",
     "node-fetch": "^2.6.0",
-    "simpl-schema": "^1.5.7"
+    "simpl-schema": "^1.5.7",
+    "twilio": "^3.83.4"
   },
   "devDependencies": {
     "@reactioncommerce/eslint-config": "~2.1.0",

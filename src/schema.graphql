@@ -1,7 +1,21 @@
 extend type User {
     phone:String
     numberVerified:Boolean
+    firstName:String
+    lastName:String
 }
 extend input CreateUserInput {
     phone:String!
+    firstName:String!
+    lastName:String!
 }
+extend type Mutation {
+sendOTP(phone:String):Boolean
+verifyOTP(phone:String,otp:String):verifyOTPResponse
+
+}
+
+type verifyOTPResponse {
+    status:Boolean
+    response:String
+} 
