@@ -43,7 +43,7 @@ export default async function register(app) {
     graphQL: {
       schemas: [mySchema],
       typeDefsObj: [accountsGraphQL.typeDefs],
-      resolvers: {...accountsGraphQL.resolvers,...resolvers}
+      resolvers: resolvers
     },
     expressMiddleware: [
       {

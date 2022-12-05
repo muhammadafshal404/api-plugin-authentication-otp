@@ -16,7 +16,7 @@ export async function generateOtp(number) {
 
     const res = await sendOtp(
       number,
-      "Your one time password for Partown is " + my_otp
+     my_otp
     );
     return res;
   } catch (err) {
@@ -26,7 +26,7 @@ export async function generateOtp(number) {
 }
 function sendOtp(number, body) {
   return new Promise((resolve, reject) => {
-    console.log("sms", body)
+    console.log("sms",number, body)
 var options = {
   'method': 'GET',
   'url': 'https://sms.convexinteractive.com/api/sendsms.php?apisecret=3sOQu0TfEzBlSr1HWmvNViaDg619&apikey=Y9ixUzy5OkPc2fWQ4TMrhgV8R573&from=8833&to='+number+'&message='+body+'&response_type=json',

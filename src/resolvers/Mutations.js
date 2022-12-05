@@ -7,8 +7,26 @@ import server_1 from "@accounts/server";
 
 export default {
         async sendOTP(parent, args, context, info) {
-                console.log("sendOTP")
-                const res = await generateOtp(args.phone);
+                const {collections}=context;
+                const {users}=collections;
+            
+                console.log("sendOTP");
+                let msisdn;
+                if(args.phone&&args.phone.length>10&&args.phone[0]=="+"){
+                        msisdn=args.phone;
+                }
+                else if (args.email){
+                        const userExist = await users.findOne({ "emails.0.address": args?.email })
+                        if(!userExist){
+                                throw new Error("User does not exist")
+                        }
+                        msisdn=userExist.phone;
+                }
+                else {
+                        throw Error ("Invalid input");
+                }
+
+                const res = await generateOtp(msisdn);
                 console.log("res", res);
                 return true;
         },
@@ -42,10 +60,10 @@ export default {
                                 userId: accountsServer.options.ambiguousErrorMessages ? null : userId,
                         };
                 }
-                if (userId) {
-                        const accountAdded = await Accounts.insertOne({ _id: userId, firstName: user.firstName, lastName: user.lastName, name: user.firstName + " " + user.lastName, phone: user.phone })
+                // if (userId) {
+                //         const accountAdded = await Accounts.insertOne({ _id: userId, firstName: user.firstName, lastName: user.lastName, name: user.firstName + " " + user.lastName, phone: user.phone })
 
-                }
+                // }
                 // When initializing AccountsServer we check that enableAutologin and ambiguousErrorMessages options
                 // are not enabled at the same time
                 const createdUser = await accountsServer.findUserById(userId);
@@ -55,16 +73,24 @@ export default {
                 await generateOtp(user.phone);
                 return {
                         userId,
-                        loginResult,
+                        // loginResult,
                 };
         },
         authenticate: async (_, args, ctx) => {
                 const { serviceName, params } = args;
-                const { injector, infos } = ctx;
-                const authenticated = await injector
-                    .get(server_1.AccountsServer)
-                    .loginWithService(serviceName, params, infos);
-                return authenticated;
+                const { injector, infos, collections } = ctx;
+                const { users } = collections;
+                const userExist = await users.findOne({ "emails.0.address": params?.user?.email })
+                if (userExist.phoneVerified) {
+                        const authenticated = await injector
+                                .get(server_1.AccountsServer)
+                                .loginWithService(serviceName, params, infos);
+                        return authenticated;
+                }
+                else 
+                {
+                        return null
+                }
             },
         authenticateWithOTP: async (_, args, ctx) => {
                 const { serviceName, params } = args;
