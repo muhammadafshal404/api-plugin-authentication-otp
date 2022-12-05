@@ -60,19 +60,36 @@ export default {
         },
         authenticate: async (_, args, ctx) => {
                 const { serviceName, params } = args;
+                const { injector, infos } = ctx;
+                const authenticated = await injector
+                    .get(server_1.AccountsServer)
+                    .loginWithService(serviceName, params, infos);
+                return authenticated;
+            },
+        authenticateWithOTP: async (_, args, ctx) => {
+                const { serviceName, params } = args;
                 const { injector, infos, collections } = ctx;
                 const { users } = collections;
                 const userExist = await users.findOne({ "emails.0.address": params?.user?.email })
-                console.log(userExist)
-                if (userExist.phoneVerified) {
-                        const authenticated = await injector
-                                .get(server_1.AccountsServer)
-                                .loginWithService(serviceName, params, infos);
-                        return authenticated;
+                const resOTP= await verifyOTP(userExist.phone, params.code, ctx);
+                console.log("status",resOTP)
+                // console.log(userExist)
+                // if (userExist.phoneVerified) {
+                //         const authenticated = await injector
+                //                 .get(server_1.AccountsServer)
+                //                 .loginWithService(serviceName, params, infos);
+                //         return authenticated;
+                // }
+                // else 
+                if(!resOTP?.status){
+                        return null
                 }
-                else {
-                        console.log("userExist", userExist)
-                        return { user: { id: userExist?._id, ...userExist } }
+                else
+                {
+                        const authenticated = await injector
+                                        .get(server_1.AccountsServer)
+                                        .loginWithService(serviceName, params, infos);
+                                return authenticated;
                 }
         },
 }

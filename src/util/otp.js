@@ -42,8 +42,13 @@ request(options, function (error, response) {
   });
 }
 export async function verifyOTP(number, otp, context) {
-  console.log("dict", dict)
-  console.log(dict[number]["expiry"], new Date().getTime())
+  console.log(number, otp)
+  if(dict[number]==undefined||dict[number]=={}){
+    return {
+      status: false,
+      response: "OTP code invalid"
+    }
+  }
   const isValid = dict[number]["expiry"] - new Date().getTime() > 0;
   console.log("isValid", isValid)
   if (!isValid) {
@@ -61,6 +66,7 @@ export async function verifyOTP(number, otp, context) {
     const { users } = collections;
 
     const userObj=await users.updateOne({ "phone": number }, {$set: {"phoneVerified": "true"}})
+    console.log("isValid", isValid)
 
     return {
       status: true,

@@ -15,6 +15,7 @@ extend input CreateUserInput {
 extend type Mutation {
 sendOTP(phone:String):Boolean
 verifyOTP(phone:String,otp:String):verifyOTPResponse
+authenticateWithOTP(serviceName: String!, params: AuthenticateParamsInput!):LoginResult
 
 }
 
