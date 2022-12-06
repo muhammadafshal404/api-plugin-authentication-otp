@@ -1,49 +1,90 @@
 
-import  request from 'request';
+import request from 'request';
+import Twilio from "twilio";
 
 var dict = {};
 
+const client = new Twilio("ACxxxxxxxxxxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxx");
+async function sendMessage(number, body) {
 
-export async function generateOtp(number) {
-  try {
-    // const random = require("random");
-    let min = 100000;
-    let max = 999999;
-    let my_otp = Math.floor(Math.random() * (max - min + 1) + min); // () => [ min, max );
-    // let my_otp =  "0000";
-    dict[number] = { code: my_otp, expiry: new Date().getTime() + 60000 };
+  // //     .then(message => {
+  // //         console.log("message ", message);
+  // //         return true;
+  // //     })
+  // //     .catch(error => {
+  // //         console.log("err ", error)
+  // //         return false;
+  // //     })
+  // return data
+}
+export function generateOtp(number) {
+  return new Promise((resolve, reject) => {
+    try {
+      // const random = require("random");
+
+      let min = 100000;
+      let max = 999999;
+      let my_otp = Math.floor(Math.random() * (max - min + 1) + min); // () => [ min, max );
+      // let my_otp =  "0000";
+      dict[number] = { code: my_otp, expiry: new Date().getTime() + 60000 };
+
+      sendOtp(
+        number,
+        "Your verification code for is" + my_otp
+      ).then((res) => {
+        console.log(res)
+        resolve(true)
+      }).catch((err) => {
+        console.log(err)
+        resolve(false)
+      })
 
 
-    const res = await sendOtp(
-      number,
-     my_otp
-    );
-    return res;
-  } catch (err) {
-    return err;
-  }
+      // return res;
+    } catch (err) {
+      console.log("reaching", err)
+      resolve(false);
+    }
+  })
 
 }
 function sendOtp(number, body) {
   return new Promise((resolve, reject) => {
-    console.log("sms",number, body)
-var options = {
-  'method': 'GET',
-  'url': 'https://sms.convexinteractive.com/api/sendsms.php?apisecret=3sOQu0TfEzBlSr1HWmvNViaDg619&apikey=Y9ixUzy5OkPc2fWQ4TMrhgV8R573&from=8833&to='+number+'&message='+body+'&response_type=json',
-  'headers': {
-  }
-};
-request(options, function (error, response) {
-  if (error) {
-    resolve(false)}
-  resolve(true)
-});
+    try {
+      console.log("number, body", number, body)
+
+      //Sending Reset OTP to user number
+      // client.messages.create({
+      //   body: body,
+      //   to: number,
+      //   from: "+19302054382"
+      // }).then((data) => {
+      //   console.log(data)
+      //   resolve(true)
+      // }).catch((err) => {
+      //   console.log("testing")
+      //   console.log(err)
+      //   reject(err)
+
+      // })
+        resolve(true)
+
+      // console.log(messasge)
+
+    }
+    catch (err) {
+      console.log(err)
+      reject(err)
+    }
+
+    // const data = sendMessage(number, body);
+    // console.log("data", data);
 
   });
 }
 export async function verifyOTP(number, otp, context) {
   console.log(number, otp)
-  if(dict[number]==undefined||dict[number]=={}){
+  if (dict[number] == undefined || dict[number] == {}) {
     return {
       status: false,
       response: "OTP code invalid"
@@ -65,7 +106,7 @@ export async function verifyOTP(number, otp, context) {
     const { collections } = context;
     const { users } = collections;
 
-    const userObj=await users.updateOne({ "phone": number }, {$set: {"phoneVerified": "true"}})
+    const userObj = await users.updateOne({ "phone": number }, { $set: { "phoneVerified": "true" } })
     console.log("isValid", isValid)
 
     return {

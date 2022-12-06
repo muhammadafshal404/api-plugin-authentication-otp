@@ -3,9 +3,12 @@ extend type User {
     phoneVerified:Boolean
     firstName:String
     lastName:String
+    dob:String
 }
 extend type Account {
     phone:String
+        dob:String
+
 }
 extend input CreateUserInput {
     phone:String!

@@ -7,28 +7,28 @@ import server_1 from "@accounts/server";
 
 export default {
         async sendOTP(parent, args, context, info) {
-                const {collections}=context;
-                const {users}=collections;
-            
+                const { collections } = context;
+                const { users } = collections;
+
                 console.log("sendOTP");
                 let msisdn;
-                if(args.phone&&args.phone.length>10&&args.phone[0]=="+"){
-                        msisdn=args.phone;
+                if (args.phone && args.phone.length > 10 && args.phone[0] == "+") {
+                        msisdn = args.phone;
                 }
-                else if (args.email){
+                else if (args.email) {
                         const userExist = await users.findOne({ "emails.0.address": args?.email })
-                        if(!userExist){
+                        if (!userExist) {
                                 throw new Error("User does not exist")
                         }
-                        msisdn=userExist.phone;
+                        msisdn = userExist.phone;
                 }
                 else {
-                        throw Error ("Invalid input");
+                        throw Error("Invalid input");
                 }
 
                 const res = await generateOtp(msisdn);
-                console.log("res", res);
-                return true;
+                console.log("resturant ", res);
+                return res ? true : false
         },
         verifyOTP(parent, args, context, info) {
                 return verifyOTP(args.phone, args.otp, context);
@@ -87,18 +87,17 @@ export default {
                                 .loginWithService(serviceName, params, infos);
                         return authenticated;
                 }
-                else 
-                {
+                else {
                         return null
                 }
-            },
+        },
         authenticateWithOTP: async (_, args, ctx) => {
                 const { serviceName, params } = args;
                 const { injector, infos, collections } = ctx;
                 const { users } = collections;
                 const userExist = await users.findOne({ "emails.0.address": params?.user?.email })
-                const resOTP= await verifyOTP(userExist.phone, params.code, ctx);
-                console.log("status",resOTP)
+                const resOTP = await verifyOTP(userExist.phone, params.code, ctx);
+                console.log("status", resOTP)
                 // console.log(userExist)
                 // if (userExist.phoneVerified) {
                 //         const authenticated = await injector
@@ -107,15 +106,87 @@ export default {
                 //         return authenticated;
                 // }
                 // else 
-                if(!resOTP?.status){
-                        return null
+                if (!resOTP?.status) {
+                        throw new Error("Invalid otp")
                 }
-                else
-                {
+                else {
                         const authenticated = await injector
-                                        .get(server_1.AccountsServer)
-                                        .loginWithService(serviceName, params, infos);
-                                return authenticated;
+                                .get(server_1.AccountsServer)
+                                .loginWithService(serviceName, params, infos);
+                        return authenticated;
                 }
         },
+        sendResetPasswordEmail: async (_, { email }, { injector }) => {
+                const accountsServer = injector.get(server_1.AccountsServer);
+                const accountsPassword = injector.get(password_1.AccountsPassword);
+                try {
+                        await accountsPassword.sendResetPasswordEmail(email);
+                }
+                catch (error) {
+                        // If ambiguousErrorMessages is true,
+                        // to prevent user enumeration we fail silently in case there is no user attached to this email
+                        if (accountsServer.options.ambiguousErrorMessages &&
+                                error instanceof server_1.AccountsJsError &&
+                                error.code === password_1.SendResetPasswordEmailErrors.UserNotFound) {
+                                return null;
+                        }
+                        throw error;
+                }
+                return null;
+        },
+        changePassword: async (_, { oldPassword, newPassword }, { user, injector }) => {
+                if (!(user && user.id)) {
+                        throw new Error('Unauthorized');
+                }
+                const userId = user.id;
+                await injector.get(password_1.AccountsPassword).changePassword(userId, oldPassword, newPassword);
+                return null;
+        },
+        verifyEmail: async (_, { token }, { injector }) => {
+                await injector.get(password_1.AccountsPassword).verifyEmail(token);
+                return null;
+        },
+        sendVerificationEmail: async (_, { email }, { injector }) => {
+                const accountsServer = injector.get(server_1.AccountsServer);
+                const accountsPassword = injector.get(password_1.AccountsPassword);
+                try {
+                        await accountsPassword.sendVerificationEmail(email);
+                }
+                catch (error) {
+                        // If ambiguousErrorMessages is true,
+                        // to prevent user enumeration we fail silently in case there is no user attached to this email
+                        if (accountsServer.options.ambiguousErrorMessages &&
+                                error instanceof server_1.AccountsJsError &&
+                                error.code === password_1.SendVerificationEmailErrors.UserNotFound) {
+                                return null;
+                        }
+                        throw error;
+                }
+                return null;
+        },
+        addEmail: async (_, { newEmail }, { user, injector }) => {
+                if (!(user && user.id)) {
+                        throw new Error('Unauthorized');
+                }
+                const userId = user.id;
+                await injector.get(password_1.AccountsPassword).addEmail(userId, newEmail);
+                return null;
+        },
+        changePassword: async (_, { oldPassword, newPassword }, { user, injector }) => {
+                if (!(user && user.id)) {
+                        throw new Error('Unauthorized');
+                }
+                try {
+                        const userId = user.id;
+                        await injector.get(password_1.AccountsPassword).changePassword(userId, oldPassword, newPassword);
+                        return true;
+                }
+                catch (err) {
+                        console.log(err);
+                        throw new Error(err)
+                }
+        },
+        resetPassword: async (_, { token, newPassword }, { injector, infos }) => {
+                return injector.get(password_1.AccountsPassword).resetPassword(token, newPassword, infos);
+            },
 }
