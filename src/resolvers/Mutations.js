@@ -10,7 +10,6 @@ export default {
                 const { collections } = context;
                 const { users } = collections;
 
-                console.log("sendOTP");
                 let msisdn;
                 if (args.phone && args.phone.length > 10 && args.phone[0] == "+") {
                         msisdn = args.phone;

@@ -1,37 +1,27 @@
 
-import request from 'request';
 import Twilio from "twilio";
 
 var dict = {};
 
-const client = new Twilio("ACxxxxxxxxxxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxx");
-async function sendMessage(number, body) {
+var accountSid = process.env.TWILIO_ACCOUNT_SID;
+var authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = new Twilio(accountSid, authToken);
 
-  // //     .then(message => {
-  // //         console.log("message ", message);
-  // //         return true;
-  // //     })
-  // //     .catch(error => {
-  // //         console.log("err ", error)
-  // //         return false;
-  // //     })
-  // return data
-}
 export function generateOtp(number) {
   return new Promise((resolve, reject) => {
     try {
-      // const random = require("random");
 
       let min = 100000;
       let max = 999999;
       let my_otp = Math.floor(Math.random() * (max - min + 1) + min); // () => [ min, max );
-      // let my_otp =  "0000";
       dict[number] = { code: my_otp, expiry: new Date().getTime() + 60000 };
-
+      console.log("otp generated",  number,
+      "Your verification code for is " + my_otp)
       sendOtp(
         number,
-        "Your verification code for is" + my_otp
+        "Your verification code for is " + my_otp
       ).then((res) => {
+        console.log("send otp response")
         console.log(res)
         resolve(true)
       }).catch((err) => {
@@ -51,25 +41,24 @@ export function generateOtp(number) {
 function sendOtp(number, body) {
   return new Promise((resolve, reject) => {
     try {
-      console.log("number, body", number, body)
+      console.log("twilio send otp ", number, body)
 
       //Sending Reset OTP to user number
-      // client.messages.create({
-      //   body: body,
-      //   to: number,
-      //   from: "+19302054382"
-      // }).then((data) => {
-      //   console.log(data)
-      //   resolve(true)
-      // }).catch((err) => {
-      //   console.log("testing")
-      //   console.log(err)
-      //   reject(err)
+      client.messages.create({
+        body: body,
+        to: number,
+        from: process.env.TWILIO_PHONE_NO
 
-      // })
+      }).then((data) => {
+        console.log(data)
         resolve(true)
+      }).catch((err) => {
+        console.log("testing")
+        console.log(err)
+        reject(err)
 
-      // console.log(messasge)
+      })
+
 
     }
     catch (err) {
@@ -77,8 +66,6 @@ function sendOtp(number, body) {
       reject(err)
     }
 
-    // const data = sendMessage(number, body);
-    // console.log("data", data);
 
   });
 }
