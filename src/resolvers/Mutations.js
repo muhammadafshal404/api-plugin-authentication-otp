@@ -36,7 +36,7 @@ export default {
         async createUser(_, { user }, ctx) {
 
                 const { injector, infos, collections } = ctx;
-                const { Accounts } = collections;
+                const { Accounts,users } = collections;
                 const accountsServer = injector.get(server_1.AccountsServer);
                 const accountsPassword = injector.get(password_1.AccountsPassword);
                 let userId;
@@ -59,10 +59,35 @@ export default {
                                 userId: accountsServer.options.ambiguousErrorMessages ? null : userId,
                         };
                 }
-                // if (userId) {
-                //         const accountAdded = await Accounts.insertOne({ _id: userId, firstName: user.firstName, lastName: user.lastName, name: user.firstName + " " + user.lastName, phone: user.phone })
+                const adminCount=Accounts.findOne({"adminUIShopIds.0":{$ne:null}});
+                console.log("adminCount",adminCount);
+                if (userId && adminCount?._id) {
+                        console.log("user",user)
+                        const account={
+                                "_id" : userId,
+                                "acceptsMarketing" : false,
+                                "emails" : [ 
+                                    {
+                                        "address" : user.email,
+                                        "verified" : false,
+                                        "provides" : "default"
+                                    }
+                                ],
+                                "groups" : [],
+                                "name" : null,
+                                "profile" : {
+                                        firstName:user.firstName,
+                                        lastName:user.lastName,
+                                        dob:user.dob,
+                                        phone:user.phone,
+                                },
+                                "shopId" : null,
+                                "state" : "new",
+                                "userId" : userId
+                            }
+                        const accountAdded = await Accounts.insertOne(account);
 
-                // }
+                }
                 // When initializing AccountsServer we check that enableAutologin and ambiguousErrorMessages options
                 // are not enabled at the same time
                 const createdUser = await accountsServer.findUserById(userId);

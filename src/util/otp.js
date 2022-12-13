@@ -5,7 +5,7 @@ var dict = {};
 
 var accountSid = process.env.TWILIO_ACCOUNT_SID;
 var authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = new Twilio(accountSid, authToken);
+const client = accountSid?new Twilio(accountSid, authToken):null;
 
 export function generateOtp(number) {
   return new Promise((resolve, reject) => {

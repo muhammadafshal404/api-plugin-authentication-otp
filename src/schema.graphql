@@ -11,9 +11,9 @@ extend type Account {
 
 }
 extend input CreateUserInput {
-    phone:String!
-    firstName:String!
-    lastName:String!
+    phone:String
+    firstName:String
+    lastName:String
 }
 extend type Mutation {
 sendOTP(phone:String,email:String):Boolean
