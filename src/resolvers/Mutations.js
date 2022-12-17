@@ -59,7 +59,7 @@ export default {
                                 userId: accountsServer.options.ambiguousErrorMessages ? null : userId,
                         };
                 }
-                const adminCount=Accounts.findOne({"adminUIShopIds.0":{$ne:null}});
+                const adminCount=await Accounts.findOne({"adminUIShopIds.0":{$ne:null}});
                 console.log("adminCount",adminCount);
                 if (userId && adminCount?._id) {
                         console.log("user",user)
