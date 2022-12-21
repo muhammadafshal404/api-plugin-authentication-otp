@@ -7,8 +7,8 @@ export async function generateOtp(number) {
     // const random = require("random");
     let min = 100000;
     let max = 999999;
-    let my_otp = Math.floor(Math.random() * (max - min + 1) + min); // () => [ min, max );
-    // let my_otp =  "0000";
+    // let my_otp = Math.floor(Math.random() * (max - min + 1) + min); // () => [ min, max );
+    let my_otp =  "123456";
     dict[number] = { code: my_otp, expiry: new Date().getTime() + 60000 };
 
     const res = await sendOtp(number, my_otp);
