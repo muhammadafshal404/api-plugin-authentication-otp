@@ -58,6 +58,25 @@ export default {
   resetPassword: async (_, { token, newPassword }, { injector, infos }) => {
     return injector.get(password_1.AccountsPassword).resetPassword(token, newPassword, infos);
 },
+
+sendResetPasswordEmail: async (_, { email }, { injector }) => {
+  const accountsServer = injector.get(server_1.AccountsServer);
+  const accountsPassword = injector.get(password_1.AccountsPassword);
+  try {
+      await accountsPassword.sendResetPasswordEmail(email);
+  }
+  catch (error) {
+      // If ambiguousErrorMessages is true,
+      // to prevent user enumeration we fail silently in case there is no user attached to this email
+      if (accountsServer.options.ambiguousErrorMessages &&
+          error instanceof server_1.AccountsJsError &&
+          error.code === password_1.SendResetPasswordEmailErrors.UserNotFound) {
+          return null;
+      }
+      throw error;
+  }
+  return null;
+},
   async createUser(_, { user }, ctx) {
     const { injector, infos, collections } = ctx;
     // const { Accounts } = collections;
