@@ -1,28 +1,52 @@
 extend type User {
-    phone:String
-    phoneVerified:Boolean
-    firstName:String
-    lastName:String
-    dob:String
+  phone: String
+  phoneVerified: Boolean
+  firstName: String
+  lastName: String
 }
 extend type Account {
-    phone:String
-        dob:String
-
+  phone: String
 }
 extend input CreateUserInput {
-    phone:String
-    firstName:String
-    lastName:String
+  phone: String!
+  firstName: String!
+  lastName: String!
+  otp: String
 }
-extend type Mutation {
-sendOTP(phone:String,email:String):Boolean
-verifyOTP(phone:String,otp:String):verifyOTPResponse
-authenticateWithOTP(serviceName: String!, params: AuthenticateParamsInput!):LoginResult
+type CreateUserResult {
+  phone: String
+  firstName: String
+  lastName: String
+  otp: String
+}
 
+type phone {
+  code: String
+  expiry: String
+}
+type dict {
+  code: String
+  expiry: String
+}
+type sendOtpResponse {
+  success: Boolean
+  dict: dict
+}
+
+extend type Mutation {
+  checkUserExist(phone: String, email: String): Boolean
+  sendOTP(phone: String, email: String): Boolean
+
+  createUserWithOtp(user: CreateUserInput!): CreateUserResult
+
+  verifyOTP(phone: String, otp: String): verifyOTPResponse
+  authenticateWithOTP(
+    serviceName: String!
+    params: AuthenticateParamsInput!
+  ): LoginResult
 }
 
 type verifyOTPResponse {
-    status:Boolean
-    response:String
-} 
+  status: Boolean
+  response: String
+}
