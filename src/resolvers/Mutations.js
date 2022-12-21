@@ -55,6 +55,9 @@ export default {
   verifyOTP(parent, args, context, info) {
     return verifyOTP(args.phone, args.otp, context);
   },
+  resetPassword: async (_, { token, newPassword }, { injector, infos }) => {
+    return injector.get(password_1.AccountsPassword).resetPassword(token, newPassword, infos);
+},
   async createUser(_, { user }, ctx) {
     const { injector, infos, collections } = ctx;
     // const { Accounts } = collections;
@@ -98,6 +101,14 @@ export default {
       // loginResult,
     };
   },
+  changePassword: async (_, { oldPassword, newPassword }, { user, injector }) => {
+    if (!(user && user.id)) {
+        throw new Error('Unauthorized');
+    }
+    const userId = user.id;
+    await injector.get(password_1.AccountsPassword).changePassword(userId, oldPassword, newPassword);
+    return null;
+},
   async createUserWithOtp(_, { user }, ctx) {
     const { injector, infos, collections } = ctx;
     const accountsServer = injector.get(server_1.AccountsServer);
