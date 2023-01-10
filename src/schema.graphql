@@ -12,12 +12,16 @@ extend input CreateUserInput {
   firstName: String!
   lastName: String!
   otp: String
+  govId: [String]
+  proofOfAddress: [String]
 }
 type CreateUserResult {
   phone: String
   firstName: String
   lastName: String
   otp: String
+  govId: [String]
+  proofOfAddress: [String]
 }
 
 type phone {
