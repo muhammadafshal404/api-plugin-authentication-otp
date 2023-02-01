@@ -6,13 +6,16 @@ extend type User {
 }
 extend type Account {
   phone: String
+  userRole: [String]
 }
 extend input CreateUserInput {
   phone: String!
   firstName: String!
   lastName: String!
   otp: String
+  isOtp: Boolean!
   govId: [String]
+  userRole: [String]!
   proofOfAddress: [String]
 }
 type CreateUserResult {

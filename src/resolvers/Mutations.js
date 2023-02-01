@@ -162,30 +162,31 @@ sendResetPasswordEmail: async (_, { email }, { injector }) => {
     const adminCount=await Accounts.findOne({"adminUIShopIds.0":{$ne:null}});
     console.log("adminCount",adminCount);
     if (userId && adminCount?._id) {
-            console.log("user",user)
-            const account={
-                    "_id" : userId,
-                    "acceptsMarketing" : false,
-                    "emails" : [ 
-                        {
-                            "address" : user.email,
-                            "verified" : false,
-                            "provides" : "default"
-                        }
-                    ],
-                    "groups" : [],
-                    "name" : null,
-                    "profile" : {
-                            firstName:user.firstName,
-                            lastName:user.lastName,
-                            dob:user.dob,
-                            phone:user.phone,
-                    },
-                    "shopId" : null,
-                    "state" : "new",
-                    "userId" : userId
-                }
-            const accountAdded = await Accounts.insertOne(account);
+      console.log("user",user)
+      const account={
+        "_id" : userId,
+        "acceptsMarketing" : false,
+        "emails" : [ 
+            {
+              "address" : user.email,
+              "verified" : false,
+              "provides" : "default"
+            }
+        ],
+        "role": user.userRole,
+        "groups" : [],
+        "name" : null,
+        "profile" : {
+          firstName:user.firstName,
+          lastName:user.lastName,
+          dob:user.dob,
+          phone:user.phone,
+        },
+        "shopId" : null,
+        "state" : "new",
+        "userId" : userId
+      }
+      const accountAdded = await Accounts.insertOne(account);
 
     }
     // When initializing AccountsServer we check that enableAutologin and ambiguousErrorMessages options
@@ -194,7 +195,7 @@ sendResetPasswordEmail: async (_, { email }, { injector }) => {
     // If we are here - user must be created successfully
     // Explicitly saying this to Typescript compiler
     const loginResult = await accountsServer.loginWithUser(createdUser, infos);
-    await generateOtp(user.phone);
+    if(user.isOtp) await generateOtp(user.phone);
     return {
       userId,
       // loginResult,
